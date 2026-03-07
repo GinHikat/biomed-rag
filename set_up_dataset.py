@@ -3,8 +3,8 @@ from huggingface_hub import hf_hub_download, snapshot_download
 
 BASE_DIR = os.getcwd()
 
-if not BASE_DIR.endswith("nlp-project"):
-    raise ValueError("Please run this script from the nlp-project directory")
+if not (BASE_DIR.endswith("biomed-rag")):
+    raise ValueError("Please run this script from the nlp-project or biomed-rag directory")
 
 data_dir = os.path.join(BASE_DIR, "data")
 

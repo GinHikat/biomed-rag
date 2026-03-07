@@ -13,3 +13,5 @@ data/
 .env
 
 .vscode
+
+secrets/
