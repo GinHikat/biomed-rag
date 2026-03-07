@@ -1,5 +1,10 @@
+import json
 import os
-from huggingface_hub import hf_hub_download, snapshot_download
+import shutil
+import zipfile
+from pathlib import Path
+
+from huggingface_hub import snapshot_download
 
 BASE_DIR = os.getcwd()
 
@@ -30,9 +35,17 @@ snapshot_download(
     local_dir=external_data_dir
 )
 
-# snapshot_download(
-#     repo_id="zinzinmit/MedNLPCombined",
-#     repo_type="dataset",
-#     allow_patterns="CTD/**",
-#     local_dir=external_data_dir
-# )
+# --- 5. Reorganize pqaa & pqau into subdirectories ---
+file_moves = [
+    ("pqaa_train_set.json", "pqaa/train_set.json"),
+    ("pqaa_dev_set.json", "pqaa/dev_set.json"),
+    ("ori_pqau.json", "pqau/pqau.json"),
+]
+
+for old, new in file_moves:
+    src = pubmed_qa_dir / old
+    dst = pubmed_qa_dir / new
+    if src.exists():
+        dst.parent.mkdir(exist_ok=True)
+        shutil.move(str(src), str(dst))
+        print(f"Moved {old} -> {new}")
