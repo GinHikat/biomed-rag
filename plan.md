@@ -53,32 +53,56 @@ graph TD
 |-------|---------|------|--------|---------| 
 | 1 | **BC5CDR** | 1,500 articles | PubTator | Core — gold-standard CID relations |
 | 2 | **ChemDisGene** | ~80K abstracts | PubTator | Scale — same format, easy integration |
-| 3 | **CTD** | ~30M assoc. | CSV | Enrich — curated chemical-disease-gene triples |
-| 4 | **PubTator 3.0** | Millions | Bulk FTP | Optional — topic-filtered expansion |
+| 3 | **BioASQ** | Thousands | JSON/TXT | Factoid/list/summary — multi-document retrieval |
+| 4 | **MedQA** | ~61K questions | JSONL | Multiple choice — clinical reasoning |
+| 5 | **PubMedQA** | ~273K pairs | JSON | Yes/no/maybe — scientific claim verification |
+
+### Key Differences Between the Biomedical QA Datasets
+| Feature | MedQA | PubMedQA | BioASQ |
+|---------|-------|----------|--------|
+| **Question source** | medical exams | paper titles | expert-written |
+| **Documents** | none provided | one abstract | multiple papers |
+| **Answer type** | multiple choice | yes/no/maybe | factoid/list/summary |
+| **Focus** | clinical reasoning | research claims | biomedical information retrieval |
+
+### Why researchers combine these datasets
+Modern biomedical QA systems often use:
+- **MedQA** → clinical reasoning
+- **PubMedQA** → scientific claim verification
+- **BioASQ** → multi-document retrieval
+
+This combination tests different medical knowledge skills.
 
 ---
 
 ## Project Structure
 
 ```
-biomedical-rag/
-├── config.py                 # Model, paths, entity types
-├── preprocess.py             # Multi-source → unified docs
-├── index.py                  # Build LightRAG KG + vectors
-├── query.py                  # QA interface (CLI)
-├── evaluate.py               # RAGAS + CID gold evaluation
-├── benchmark.py              # MedQA / PubMedQA / MedMCQA comparison
-├── experiments/              # Ablation & comparison results
-│   ├── run_ablation.py       # Compare modes, data sources
-│   └── results/              # Saved metrics & plots
-├── data/
-│   ├── CDR_Data/             # BC5CDR (existing)
-│   ├── chemdis_gene/         # ChemDisGene
-│   ├── ctd/                  # CTD exports
-│   └── processed/            # Unified text docs
-├── requirements.txt
-└── notebooks/
-    └── demo.ipynb
+biomed-rag/
+├── module/                   # Main project source code
+│   ├── RAG_pipeline/         # Core RAG components (chunking, embeddings, generation, ingestion, pipeline, retrieval, vectorstore)
+│   └── data_processing/      # Dataset parsing scripts (bc5cdr.py, ctd.py, pubtator.py)
+├── notebooks/                # Jupyter notebook demonstrations
+│   ├── processing_demo/
+│   └── rag_demo/
+├── experiments/              # Model experiments and ablation studies
+├── finetune/                 # Fine-tuning scripts
+├── shared_functions/         # Shared utilities (Google Drive/Sheets integration)
+├── tests/                    # Unit tests
+├── secrets/                  # Credentials directory
+├── data/                     # Dataset storage
+│   ├── external/             # Hub datasets downloaded via script
+│   │   ├── bc5cdr/           # BioCreative V CDR Corpus
+│   │   ├── ChemDisGene/      # ChemDisGene dataset
+│   │   ├── bioasq/           # BioASQ benchmark dataset
+│   │   ├── medqa/            # MedQA multiple-choice dataset
+│   │   └── pubmedqa/         # PubMedQA text reasoning dataset
+│   └── vectorstore/          # Vector datastore
+├── plan.md   
+├── todo.txt               
+├── set_up_dataset.py         # Dataset preparation script
+├── requirements.txt          # Python dependencies
+└── .env.example              # Environment variables template
 ```
 
 ---
@@ -186,7 +210,7 @@ These are the **raw model** scores you are competing against — pulled from the
 | **MedQA** (USMLE 4-opt) | MC QA | 50.6% | > 50.6% |
 | **MedQA-5opts** (USMLE 5-opt) | MC QA | 42.8% | > 42.8% |
 | **PubMedQA** | Yes/No/Maybe QA | 77.5% | > 77.5% |
-| **MedMCQA** | MC QA | 48.1% | > 48.1% |
+| **BioASQ** | Factoid/List/Summary QA | 54.5% | > 54.5% |
 
 > [!IMPORTANT]
 > The AWQ quantized variant (`W4-GEMM`) may show marginally different scores vs. the fp16 base due to quantization. **Re-run raw-model baselines yourself** on the same hardware before reporting comparisons — do not cite paper numbers directly as your raw baseline.
@@ -198,10 +222,10 @@ These are the **raw model** scores you are competing against — pulled from the
 from datasets import load_dataset
 
 BENCHMARKS = {
-    "medqa_4opts":  ("bigbio/med_qa",    "med_qa_en_source"),
-    "medqa_5opts":  ("bigbio/med_qa",    "med_qa_en_5options_source"),
-    "pubmedqa":     ("bigbio/pubmed_qa", "pubmed_qa_l_source"),
-    "medmcqa":      ("medmcqa",          None),
+    "medqa_4opts":  ("bigbio/med_qa",        "med_qa_en_source"),
+    "medqa_5opts":  ("bigbio/med_qa",        "med_qa_en_5options_source"),
+    "pubmedqa":     ("bigbio/pubmed_qa",     "pubmed_qa_l_source"),
+    "bioasq":       ("bigbio/bioasq_task_b", None),
 }
 
 def run_benchmark(name, rag_enabled=False):
@@ -228,7 +252,7 @@ def run_benchmark(name, rag_enabled=False):
 | MedQA 4-opts  |  xx.x%                |  xx.x%         | +x.x%  |
 | MedQA 5-opts  |  xx.x%                |  xx.x%         | +x.x%  |
 | PubMedQA      |  xx.x%                |  xx.x%         | +x.x%  |
-| MedMCQA       |  xx.x%                |  xx.x%         | +x.x%  |
+| BioASQ        |  xx.x%                |  xx.x%         | +x.x%  |
 ```
 
 ---

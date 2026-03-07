@@ -4,7 +4,8 @@ matplotlib
 seaborn 
 python-dotenv
 huggingface_hub
-
+dotenv
+google-api-python-client
 langgraph 
 faiss-cpu 
 langchain-openai 
@@ -17,8 +18,7 @@ sentence_transformers
 docling-core 
 docling 
 mlflow 
-
 pypdf
-ragas
+gspread
 
 

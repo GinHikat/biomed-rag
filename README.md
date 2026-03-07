@@ -9,57 +9,39 @@ Members:
 - Nguyen Vu Hong Ngoc
 - Le Chi Thanh Lam
 
-
 ## Project Structure
 
 ```
 
-biomedical-rag/
-
-├── config.py                 # Model, paths, entity types
-
-├── preprocess.py             # Multi-source → unified docs
-
-├── index.py                  # Build LightRAG KG + vectors
-
-├── query.py                  # QA interface (CLI)
-
-├── evaluate.py               # RAGAS + CID gold evaluation
-
-├── finetune/                 # (Optional) QLoRA fine-tuning
-
-│   ├── prepare_data.py       # BC5CDR → instruction-tuning format
-
-│   ├── train_qlora.py        # QLoRA training script
-
-│   └── export_ollama.py      # Convert to GGUF → Ollama
-
-├── experiments/              # Ablation & comparison results
-
-│   ├── run_ablation.py       # Compare modes, data sources
-
-│   └── results/              # Saved metrics & plots
-
-├── data/
-
-│   ├── CDR_Data/             # BC5CDR (existing)
-
-│   ├── chemdis_gene/         # ChemDisGene
-
-│   ├── ctd/                  # CTD exports
-
-│   └── processed/            # Unified text docs
-
-├── requirements.txt
-
-└── notebooks/
-
-    └── demo.ipynb
+biomed-rag/
+├── module/                   # Main project source code
+│   ├── RAG_pipeline/         # Core RAG components (chunking, embeddings, generation, ingestion, pipeline, retrieval, vectorstore)
+│   └── data_processing/      # Dataset parsing scripts (bc5cdr.py, ctd.py, pubtator.py)
+├── notebooks/                # Jupyter notebook demonstrations
+│   ├── processing_demo/
+│   └── rag_demo/
+├── experiments/              # Model experiments and ablation studies
+├── finetune/                 # Fine-tuning scripts
+├── shared_functions/         # Shared utilities (Google Drive/Sheets integration)
+├── tests/                    # Unit tests
+├── secrets/                  # Credentials directory
+├── data/                     # Dataset storage
+│   ├── external/             # Hub datasets downloaded via script
+│   │   ├── bc5cdr/           # BioCreative V CDR Corpus
+│   │   ├── ChemDisGene/      # ChemDisGene dataset
+│   │   ├── bioasq/           # BioASQ benchmark dataset
+│   │   ├── medqa/            # MedQA multiple-choice dataset
+│   │   └── pubmedqa/         # PubMedQA text reasoning dataset
+│   └── vectorstore/          # Vector datastore
+├── plan.md   
+├── todo.txt               
+├── set_up_dataset.py         # Dataset preparation script
+├── requirements.txt          # Python dependencies
+└── .env.example              # Environment variables template
 
 ```
 
 ---
-
 
 ## Installation & Setup
 
@@ -94,39 +76,27 @@ python set_up_dataset.py
 
 ## Using Datasets (MedNLPCombined)
 
-This project uses the datasets from the `MedNLPCombined` repository on Hugging Face (`zinzinmit/MedNLPCombined`). You have multiple ways to access and use these datasets for your RAG system.
+This project integrates various datasets from the `MedNLPCombined` repository on Hugging Face (`zinzinmit/MedNLPCombined`). The provided `set_up_dataset.py` script automatically downloads these datasets into `data/external/`.
 
-### Option A: Using the Setup Script (Recommended)
-The provided `set_up_dataset.py` automatically pulls the required subsets directly from Hugging Face and structures them correctly into the `data/external/` folder.
-By default, this grabs the BioCreative V CDR (`bc5cdr`) and ChemDisGene (`ChemDisGene`) sub-directories.
+Here is a summary of the available datasets:
 
-### Option B: Direct Hugging Face Loading in Python
-If you prefer not to download the flat files physically, you can load datasets directly into your Python scripts via the `datasets` or `huggingface_hub` libraries.
+| Dataset               | Introduction                                                         | Purpose                                                                     | Format (Original))      | Size (approx.)                             |
+| --------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------- | ------------------------------------------ |
+| **BC5CDR**      | BioCreative V Task Corpus for Chemical-Disease Relations.            | Named Entity Recognition (NER) and Relation Extraction (RE) for CID.        | `PubTator` / `.txt` | 1,500 annotated PubMed articles            |
+| **ChemDisGene** | Large-scale distant-supervision relationship corpus.                 | Extracting biomedical relationships between chemicals, diseases, and genes. | `.txt` / `.tsv`     | ~80,000 biomedical abstracts               |
+| **BioASQ**      | Benchmark dataset for biomedical semantic indexing and QA.           | Evaluating RAG systems on factoid, list, and boolean questions.             | `.json` / `.txt`    | Thousands of QA pairs & reference contexts |
+| **MedQA**       | Medical multiple-choice question answering dataset from board exams. | Testing comprehensive clinical reasoning and domain professional knowledge. | `.jsonl`              | ~61,000 multiple-choice questions          |
+| **PubMedQA**    | QA dataset requiring model reasoning over scientific abstracts.      | Answering research questions based on PubMed abstracts with yes/no/maybe.   | `.json`               | ~273,000 context-question pairs            |
 
-#### Using `huggingface_hub` to download specific folders
-```python
-from huggingface_hub import snapshot_download
+### Temporary Note for the dataset
 
-# Download only the MedQA and PubMedQA subset text files
-snapshot_download(
-    repo_id="zinzinmit/MedNLPCombined",
-    repo_type="dataset",
-    allow_patterns=["medqa/**", "pubmedqa/**"],
-    local_dir="./data/external"
-)
+The temporary document corpus for RAG can be found in MedQA dataset or by aggregating the Title/Abstract column in BC5CDR and ChemDisGene
+
+```bash
+data/medqa/textbooks
+
+data/bc5cdr/data/training/full_bc5cdr_data.csv
+
+data/ChemDisGene/data/main/ctd_full_data
 ```
 
-#### Accessing raw JSON/TXT files dynamically
-Once downloaded via your setup scripts, you can load JSON elements for processing using `json` or Pandas:
-
-```python
-import json
-import os
-
-# Example: Loading ChemDisGene annotations
-file_path = "./data/external/ChemDisGene/data/curated/abstracts.txt"
-with open(file_path, 'r', encoding='utf-8') as f:
-    for line in f:
-        # process relations directly
-        pass
-```

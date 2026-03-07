@@ -35,17 +35,23 @@ snapshot_download(
     local_dir=external_data_dir
 )
 
-# --- 5. Reorganize pqaa & pqau into subdirectories ---
-file_moves = [
-    ("pqaa_train_set.json", "pqaa/train_set.json"),
-    ("pqaa_dev_set.json", "pqaa/dev_set.json"),
-    ("ori_pqau.json", "pqau/pqau.json"),
-]
+snapshot_download(
+    repo_id="zinzinmit/MedNLPCombined",
+    repo_type="dataset",
+    allow_patterns="bioasq/**",
+    local_dir=external_data_dir
+)
 
-for old, new in file_moves:
-    src = pubmed_qa_dir / old
-    dst = pubmed_qa_dir / new
-    if src.exists():
-        dst.parent.mkdir(exist_ok=True)
-        shutil.move(str(src), str(dst))
-        print(f"Moved {old} -> {new}")
+snapshot_download(
+    repo_id="zinzinmit/MedNLPCombined",
+    repo_type="dataset",
+    allow_patterns="medqa/**",
+    local_dir=external_data_dir
+)
+
+snapshot_download(
+    repo_id="zinzinmit/MedNLPCombined",
+    repo_type="dataset",
+    allow_patterns="pubmedqa/**",
+    local_dir=external_data_dir
+)

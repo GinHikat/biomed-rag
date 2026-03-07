@@ -17,4 +17,4 @@ data/*
 
 .vscode
 
-secrets/
+ggsheet_credentials.json
