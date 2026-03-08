@@ -18,3 +18,5 @@ data/*
 .vscode
 
 ggsheet_credentials.json
+
+*.db
