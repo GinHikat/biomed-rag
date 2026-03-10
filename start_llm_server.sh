@@ -27,7 +27,9 @@ if [[ "$LLM_DEVICE" == "cpu" ]]; then
     --host "$VLLM_HOST" \
     --port "$VLLM_LLM_PORT" \
     --max-model-len "$VLLM_MAX_MODEL_LEN" \
-    --dtype float32 \
+    --device cpu \
+    --dtype half \
+    --trust-remote-code \
     2>&1 | tee "$LLM_LOG"
 else
   python -m vllm.entrypoints.openai.api_server \
@@ -37,5 +39,6 @@ else
     --port "$VLLM_LLM_PORT" \
     --max-model-len "$VLLM_MAX_MODEL_LEN" \
     --gpu-memory-utilization "$VLLM_GPU_MEM_UTIL" \
+    --trust-remote-code \
     2>&1 | tee "$LLM_LOG"
 fi

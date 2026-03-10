@@ -25,7 +25,9 @@ if [[ "$EMBED_DEVICE" == "cpu" ]]; then
     --runner pooling \
     --host "$VLLM_HOST" \
     --port "$VLLM_EMBED_PORT" \
-    --dtype float32 \
+    --device cpu \
+    --dtype half \
+    --trust-remote-code \
     2>&1 | tee "$EMBED_LOG"
 else
   python -m vllm.entrypoints.openai.api_server \
@@ -34,5 +36,6 @@ else
     --host "$VLLM_HOST" \
     --port "$VLLM_EMBED_PORT" \
     --gpu-memory-utilization "$VLLM_EMBED_GPU_MEM_UTIL" \
+    --trust-remote-code \
     2>&1 | tee "$EMBED_LOG"
 fi
