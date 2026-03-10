@@ -1,0 +1,50 @@
+{
+  "doc-a1434dd8cca2d57894f09157cce9d2e6": {
+    "status": "failed",
+    "error_msg": "SentenceTransformer.forward() missing 1 required positional argument: 'input'",
+    "content_summary": "Proteins are the most abundant and functionally diverse molecules in living systems.\n        Virtually every life process depends on this class of macromolecules.\n        Enzymes regulate metabolism, contractile proteins permit movement,\n        and ...",
+    "content_length": 314,
+    "created_at": "2026-03-10T07:34:23.265184+00:00",
+    "updated_at": "2026-03-10T07:46:37.314931+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260310_073423_69cb1429",
+    "metadata": {
+      "processing_start_time": 1773128797,
+      "processing_end_time": 1773128797
+    },
+    "chunks_list": []
+  },
+  "dup-3cc6607e172301844ae4c8d49d433932": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-a1434dd8cca2d57894f09157cce9d2e6",
+    "content_length": 314,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-03-10T07:35:52.232343+00:00",
+    "updated_at": "2026-03-10T07:35:52.232348+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260310_073552_327a1d2b",
+    "error_msg": "Content already exists. Original doc_id: doc-a1434dd8cca2d57894f09157cce9d2e6, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-a1434dd8cca2d57894f09157cce9d2e6",
+      "original_track_id": "insert_20260310_073423_69cb1429"
+    }
+  },
+  "dup-32b549f5b4488f5269f25af3fa0a5725": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-a1434dd8cca2d57894f09157cce9d2e6",
+    "content_length": 314,
+    "created_at": "2026-03-10T07:46:37.306496+00:00",
+    "updated_at": "2026-03-10T07:46:37.306501+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260310_074637_b3cccb0c",
+    "error_msg": "Content already exists. Original doc_id: doc-a1434dd8cca2d57894f09157cce9d2e6, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-a1434dd8cca2d57894f09157cce9d2e6",
+      "original_track_id": "insert_20260310_073423_69cb1429"
+    },
+    "chunks_list": []
+  }
+}

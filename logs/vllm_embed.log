@@ -1,0 +1,110 @@
+Skipping import of cpp extensions due to incompatible torch version 2.10.0+cu128 for torchao version 0.15.0             Please see https://github.com/pytorch/ao/issues/2919 for more info
+[33mChecking connectivity to the model hosters, this may take a while. To bypass this check, set `PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK` to `True`.[0m
+[2026-03-10 10:47:27] INFO loader.py:120: Loading faiss with AVX512 support.
+[2026-03-10 10:47:27] INFO loader.py:122: Successfully loaded faiss with AVX512 support.
+ERROR 03-10 10:47:27 [__init__.py:64] Failed to load plugin register_paddlex_genai_models
+ERROR 03-10 10:47:27 [__init__.py:64] Traceback (most recent call last):
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/plugins/__init__.py", line 61, in load_plugins_by_group
+ERROR 03-10 10:47:27 [__init__.py:64]     func = plugin.load()
+ERROR 03-10 10:47:27 [__init__.py:64]            ^^^^^^^^^^^^^
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/importlib_metadata/__init__.py", line 221, in load
+ERROR 03-10 10:47:27 [__init__.py:64]     module = import_module(self.module)
+ERROR 03-10 10:47:27 [__init__.py:64]              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/importlib/__init__.py", line 90, in import_module
+ERROR 03-10 10:47:27 [__init__.py:64]     return _bootstrap._gcd_import(name[level:], package, level)
+ERROR 03-10 10:47:27 [__init__.py:64]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+ERROR 03-10 10:47:27 [__init__.py:64]   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/__init__.py", line 49, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .inference import create_pipeline, create_predictor
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/__init__.py", line 17, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .pipelines import create_pipeline, load_pipeline_config
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/__init__.py", line 23, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .attribute_recognition import (
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/attribute_recognition/__init__.py", line 15, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .pipeline import PedestrianAttributeRecPipeline, VehicleAttributeRecPipeline
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/attribute_recognition/pipeline.py", line 27, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from ..components import CropByBoxes
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/components/__init__.py", line 29, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .retriever.base import BaseRetriever
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/components/retriever/__init__.py", line 15, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .openai_bot_retriever import OpenAIBotRetriever
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/components/retriever/openai_bot_retriever.py", line 16, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from .base import BaseRetriever
+ERROR 03-10 10:47:27 [__init__.py:64]   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/paddlex/inference/pipelines/components/retriever/base.py", line 25, in <module>
+ERROR 03-10 10:47:27 [__init__.py:64]     from langchain.docstore.document import Document
+ERROR 03-10 10:47:27 [__init__.py:64] ModuleNotFoundError: No module named 'langchain.docstore'
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:302] 
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:302]        █     █     █▄   ▄█
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:302]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.17.0
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:302]   █▄█▀ █     █     █     █  model   nomic-ai/nomic-embed-text-v1.5
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:302]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:302] 
+(APIServer pid=100427) INFO 03-10 10:47:27 [utils.py:238] non-default args: {'host': '0.0.0.0', 'port': 8081, 'model': 'nomic-ai/nomic-embed-text-v1.5', 'runner': 'pooling', 'gpu_memory_utilization': 0.15}
+(APIServer pid=100427) Traceback (most recent call last):
+(APIServer pid=100427)   File "<frozen runpy>", line 198, in _run_module_as_main
+(APIServer pid=100427)   File "<frozen runpy>", line 88, in _run_code
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/entrypoints/openai/api_server.py", line 545, in <module>
+(APIServer pid=100427)     uvloop.run(run_server(args))
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=100427)     return __asyncio.run(
+(APIServer pid=100427)            ^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/asyncio/runners.py", line 195, in run
+(APIServer pid=100427)     return runner.run(main)
+(APIServer pid=100427)            ^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=100427)     return self._loop.run_until_complete(task)
+(APIServer pid=100427)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=100427)     return await main
+(APIServer pid=100427)            ^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/entrypoints/openai/api_server.py", line 471, in run_server
+(APIServer pid=100427)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/entrypoints/openai/api_server.py", line 490, in run_server_worker
+(APIServer pid=100427)     async with build_async_engine_client(
+(APIServer pid=100427)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=100427)     return await anext(self.gen)
+(APIServer pid=100427)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/entrypoints/openai/api_server.py", line 96, in build_async_engine_client
+(APIServer pid=100427)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=100427)                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=100427)     return await anext(self.gen)
+(APIServer pid=100427)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/entrypoints/openai/api_server.py", line 122, in build_async_engine_client_from_engine_args
+(APIServer pid=100427)     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+(APIServer pid=100427)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/engine/arg_utils.py", line 1477, in create_engine_config
+(APIServer pid=100427)     model_config = self.create_model_config()
+(APIServer pid=100427)                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/vllm/engine/arg_utils.py", line 1329, in create_model_config
+(APIServer pid=100427)     return ModelConfig(
+(APIServer pid=100427)            ^^^^^^^^^^^^
+(APIServer pid=100427)   File "/home/zendragonxxx/miniforge3/envs/pip12/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+(APIServer pid=100427)     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+(APIServer pid=100427) pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelConfig
+(APIServer pid=100427)   Value error, nomic-ai/nomic-bert-2048 You can inspect the repository content at https://hf.co/nomic-ai/nomic-embed-text-v1.5.
+(APIServer pid=100427) Please pass the argument `trust_remote_code=True` to allow custom code to be run. [type=value_error, input_value=ArgsKwargs((), {'model': ...rocessor_plugin': None}), input_type=ArgsKwargs]
+(APIServer pid=100427)     For further information visit https://errors.pydantic.dev/2.12/v/value_error
