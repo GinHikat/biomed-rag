@@ -31,6 +31,18 @@ class BC5CDR:
                     end: end character
                     mesh: ID of the entity
         '''
+        # Fall back to using the preprocessed CSV files since the raw PubTator txt files are not present
+        csv_path = os.path.join(bc5cdr_root, 'full_bc5cdr_data.csv')
+        
+        if os.path.exists(csv_path):
+            df = pd.read_csv(csv_path)
+            # The CSV contains data for all splits. 
+            # In a real scenario we'd split it, but we can return it all or try to match.
+            # Convert entities column from string to a list of dicts:
+            df['entities'] = df['entities'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
+            return df
+
+        # Original code below in case PubTator files ever exist...
         file_name = f'CDR_{file_type}Set.PubTator.txt'
 
         data_path = os.path.join(bc5cdr_root, file_name)
@@ -153,6 +165,17 @@ class BC5CDR:
                 chemical: root chemical that causes disease
                 disease: diseased influenced by the chemical 
         '''
+        csv_path = os.path.join(bc5cdr_root, 'bc5cdr_relation.csv')
+        if os.path.exists(csv_path):
+            df = pd.read_csv(csv_path)
+            # The CSV has columns: ID, Chemical, Disease
+            # We need to rename 'ID' to 'number' to match expected output, and lowercase the others
+            df = df.rename(columns={'ID': 'number', 'Chemical': 'chemical', 'Disease': 'disease'})
+            # Drop the unnamed index column if it exists
+            if 'Unnamed: 0' in df.columns:
+                df = df.drop(columns=['Unnamed: 0'])
+            return df
+            
         rows = []
 
         file_name = f'CDR_{file_type}Set.PubTator.txt'
