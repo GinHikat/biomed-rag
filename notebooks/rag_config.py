@@ -16,11 +16,16 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(project_root, ".env"))
 
 # ============================================================
-# LLM GENERATION CONFIG  (tweak here)
+# RAG CONFIGURATION (tweak here)
 # ============================================================
-LLM_MAX_TOKENS  = 3072  # prompt + output must stay under model's 8192-token context window
-LLM_TEMPERATURE = 0.1    # lower = more deterministic output
-LLM_TOP_P       = 0.95
+LLM_MAX_TOKENS      = 4096  # prompt + output must stay under model's 8192-token context window
+LLM_TEMPERATURE     = 0.1   # lower = more deterministic output
+LLM_TOP_P           = 0.95
+FREQUENCY_PENALTY  = 0.1   # Helps stop repetition loops (e.g. Fanconi Syndrome loop)
+PRESENCE_PENALTY   = 0.1
+
+CHUNK_TOKEN_SIZE    = 900   # Smaller chunks = fewer entities per call = more room for relations
+USE_CUSTOM_ENTITIES = True  # Set to False to use LightRAG defaults
 # ============================================================
 
 # ── debug logging ─────────────────────────────────────────────────────────────
@@ -48,9 +53,11 @@ os.makedirs(WORKING_DIR, exist_ok=True)
 async def llm_complete(prompt, system_prompt=None, history_messages=None, **kwargs):
     """OpenAI-compatible completion routed to the local vLLM server."""
     kwargs.update({
-        "temperature": LLM_TEMPERATURE,
-        "top_p":       LLM_TOP_P,
-        "max_tokens":  LLM_MAX_TOKENS,
+        "temperature":       LLM_TEMPERATURE,
+        "top_p":             LLM_TOP_P,
+        "max_tokens":        LLM_MAX_TOKENS,
+        "frequency_penalty": FREQUENCY_PENALTY,
+        "presence_penalty":  PRESENCE_PENALTY,
     })
     response = await openai_complete(
         prompt,
@@ -73,7 +80,7 @@ async def llm_complete(prompt, system_prompt=None, history_messages=None, **kwar
 
 # Biomedical entity types — overrides LightRAG's generic defaults
 # (default types cause biological entities to be misclassified as 'artifact')
-ENTITY_TYPES = [
+BIOMED_ENTITY_TYPES = [
     "Anatomy",      # organs, tissues, body structures
     "Disease",      # conditions, disorders, syndromes
     "Gene",         # genes, DNA sequences
@@ -87,17 +94,22 @@ ENTITY_TYPES = [
 ]
 
 def build_rag() -> LightRAG:
+    # Use custom entities only if enabled
+    addon_params = {}
+    if USE_CUSTOM_ENTITIES:
+        addon_params["entity_types"] = BIOMED_ENTITY_TYPES
+
     return LightRAG(
         working_dir=WORKING_DIR,
         llm_model_func=llm_complete,
         llm_model_name=LLM_MODEL,
         llm_model_max_async=4,
-        addon_params={"entity_types": ENTITY_TYPES},
+        addon_params=addon_params,
         llm_model_kwargs={
             "base_url": LLM_BASE_URL,
             "api_key":  "none",
         },
-        chunk_token_size=1200,
+        chunk_token_size=CHUNK_TOKEN_SIZE,
         entity_extract_max_gleaning=0,
         default_embedding_timeout=120,
         embedding_func=EmbeddingFunc(
