@@ -92,7 +92,7 @@ def build_rag() -> LightRAG:
         llm_model_func=llm_complete,
         llm_model_name=LLM_MODEL,
         llm_model_max_async=4,
-        entity_types=ENTITY_TYPES,
+        addon_params={"entity_types": ENTITY_TYPES},
         llm_model_kwargs={
             "base_url": LLM_BASE_URL,
             "api_key":  "none",
