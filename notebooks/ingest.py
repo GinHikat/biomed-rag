@@ -1,17 +1,22 @@
 """
 ingest.py — Insert documents into the LightRAG knowledge graph.
 
-Usage:
-    python ingest.py                        # ingest default textbook
-    python ingest.py path/to/your/file.txt  # ingest a custom file
+Usage (from anywhere):
+    python notebooks/ingest.py                        # ingest default textbook
+    python notebooks/ingest.py path/to/your/file.txt  # ingest a custom file
 """
 import asyncio
 import sys
+import os
 
-from rag_config import build_rag, project_root, LLM_MODEL, EMBEDDING_MODEL, LLM_BASE_URL, WORKING_DIR, LLM_MAX_TOKENS
+# Ensure rag_config is importable regardless of cwd
+_HERE = os.path.dirname(os.path.abspath(__file__))  # notebooks/
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
+from rag_config import build_rag, project_root, LLM_MODEL, EMBEDDING_MODEL, LLM_BASE_URL, WORKING_DIR, LLM_MAX_TOKENS, DEBUG_LLM, DEBUG_OUTPUT_FILE
 
 # ── Document to ingest ────────────────────────────────────────────────────────
-import os
 DEFAULT_TEXTBOOK = os.path.join(
     project_root, "data", "external", "medqa", "textbooks", "Anatomy_Gray.txt"
 )
@@ -24,6 +29,7 @@ async def main():
     print(f"  LLM base URL : {LLM_BASE_URL}")
     print(f"  Working dir  : {WORKING_DIR}")
     print(f"  max_tokens   : {LLM_MAX_TOKENS}")
+    print(f"  Debug log    : {DEBUG_OUTPUT_FILE if DEBUG_LLM else 'disabled'}")
     print(f"  Source file  : {source_file}")
     print()
 

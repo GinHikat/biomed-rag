@@ -1,13 +1,13 @@
 """
-Shared RAG setup — imported by ingest.py and query.py.
+Shared RAG setup — imported by ingest.py and query.ipynb.
 All tuneable config lives at the top of this file.
 """
-import sys, os, re
+import sys, os
 from functools import partial
 
-# ── resolve project root ───────────────────────────────────────────────────────
-SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+# ── resolve project root (always repo root, regardless of cwd) ────────────────
+SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))   # notebooks/
+project_root = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))  # repo root
 if project_root not in sys.path:
     sys.path.append(project_root)
 
@@ -23,12 +23,17 @@ LLM_TEMPERATURE = 0.1    # lower = more deterministic output
 LLM_TOP_P       = 0.95
 # ============================================================
 
+# ── debug logging ─────────────────────────────────────────────────────────────
+DEBUG_LLM        = True   # set False to disable prompt/response logging
+DEBUG_OUTPUT_FILE = os.path.join(project_root, "debug_llm_output.txt")
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ── from .env ─────────────────────────────────────────────────────────────────
-LLM_MODEL      = os.environ["LLM_MODEL"]
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
-LLM_BASE_URL   = os.environ.get("LLM_BASE_URL",  "http://127.0.0.1:8080/v1")
-EMBED_BASE_URL  = os.environ.get("EMBED_BASE_URL", "http://127.0.0.1:8081/v1")
-WORKING_DIR    = os.environ.get("RAG_WORKING_DIR", "./rag_storage")
+LLM_MODEL       = os.environ["LLM_MODEL"]
+EMBEDDING_MODEL  = os.environ.get("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
+LLM_BASE_URL    = os.environ.get("LLM_BASE_URL",  "http://127.0.0.1:8080/v1")
+EMBED_BASE_URL   = os.environ.get("EMBED_BASE_URL", "http://127.0.0.1:8081/v1")
+WORKING_DIR     = os.environ.get("RAG_WORKING_DIR", os.path.join(project_root, "rag_storage"))
 
 # ── lightrag imports ──────────────────────────────────────────────────────────
 from lightrag.utils import setup_logger, EmbeddingFunc
@@ -47,12 +52,22 @@ async def llm_complete(prompt, system_prompt=None, history_messages=None, **kwar
         "top_p":       LLM_TOP_P,
         "max_tokens":  LLM_MAX_TOKENS,
     })
-    return await openai_complete(
+    response = await openai_complete(
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
         **kwargs
     )
+
+    if DEBUG_LLM:
+        with open(DEBUG_OUTPUT_FILE, "a", encoding="utf-8") as f:
+            f.write("=== PROMPT ===\n")
+            f.write(prompt + "\n")
+            f.write("=== RESPONSE ===\n")
+            f.write(response + "\n")
+            f.write("=================\n\n")
+
+    return response
 
 # ── RAG instance ──────────────────────────────────────────────────────────────
 def build_rag() -> LightRAG:
