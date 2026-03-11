@@ -25,4 +25,6 @@ ggsheet_credentials.json
 
 logs/
 
-*rag_storage/*
+rag_storage/
+
+debug_llm_output.txt

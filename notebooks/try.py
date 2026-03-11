@@ -1,5 +1,13 @@
 # %%
 # %%
+
+# ============================================================
+# LLM GENERATION CONFIG  (change these to tune extraction)
+# ============================================================
+LLM_MAX_TOKENS  = 2048   # increase if relations are cut off mid-list
+LLM_TEMPERATURE = 0.1    # lower = more deterministic output
+LLM_TOP_P       = 0.95
+# ============================================================
 import pandas as pd 
 import numpy as np
 # import matplotlib.pyplot as plt 
@@ -55,27 +63,70 @@ async def hf_model_complete(prompt: str, system_prompt=None, history_messages=[]
 async def bio_mistral_complete(prompt, system_prompt=None, history_messages=None, **kwargs):
     # Update kwargs to be more strict for extraction
     kwargs.update({
-        "temperature": 0.1,      # Be deterministic
-        "top_p": 0.95,
-        "max_tokens": 1024,      # Ensure it doesn't cut off mid-list
+        "temperature": LLM_TEMPERATURE,
+        "top_p": LLM_TOP_P,
+        "max_tokens": LLM_MAX_TOKENS,
     })
 
-    if system_prompt:
-        # Prepend system prompt and emphasize the separator format
-        prompt = (
-            f"SYSTEM INSTRUCTIONS:\n{system_prompt}\n\n"
-            f"IMPORTANT: You MUST use the exact separator <SEP> between fields and "
-            f"END the response with the ############################# delimiter.\n\n"
-            f"USER INPUT:\n{prompt}"
-        )
-        system_prompt = None
-        
-    return await openai_complete(
-        prompt,
-        system_prompt=system_prompt,
+    import re
+    
+    # LightRAG sends a massive prompt with its own instructions and examples.
+    # We need to extract JUST the raw text to be processed.
+    text_to_process = prompt
+    match = re.search(r'---Data to be Processed---.*?<Input Text>\n*```(.*?)```', prompt, re.DOTALL)
+    if match:
+        text_to_process = match.group(1).strip()
+    
+    # Completely override the prompt to guarantee BioMistral doesn't get confused by LightRAG's template
+    custom_system_prompt = (
+        "You are an expert biomedical knowledge graph extractor. Your task is to extract medical entities and relationships from the provided text.\n\n"
+        "Guidelines:\n"
+        "- Extract entities that are Anatomy, Disease, Gene, Chemical, Procedure, or Concept.\n"
+        "- Do not extract information that is not explicitly in the text.\n"
+        "- Output exactly 4 fields for entities, separated by <|#|>.\n"
+        "- Output exactly 5 fields for relationships, separated by <|#|>.\n"
+        "- Output ONLY one item per line. End with <|COMPLETE|>.\n\n"
+        "EXAMPLE INPUT TEXT:\n"
+        "Aspirin is often used to treat mild headaches. It works by inhibiting cyclooxygenase.\n\n"
+        "EXAMPLE EXPECTED OUTPUT:\n"
+        "entity<|#|>Aspirin<|#|>Chemical<|#|>Medication used to treat pain and inhibit cyclooxygenase.\n"
+        "entity<|#|>Headache<|#|>Disease<|#|>Condition treated by aspirin.\n"
+        "entity<|#|>Cyclooxygenase<|#|>Gene<|#|>Enzyme inhibited by aspirin.\n"
+        "relation<|#|>Aspirin<|#|>Headache<|#|>treats<|#|>Aspirin provides relief for headaches.\n"
+        "relation<|#|>Aspirin<|#|>Cyclooxygenase<|#|>inhibits<|#|>Aspirin inhibits the activity of cyclooxygenase.\n"
+        "<|COMPLETE|>\n\n"
+        "Now, process the following real input text and produce ONLY the extraction list."
+    )
+    
+    final_prompt = f"{custom_system_prompt}\n\nREAL INPUT TEXT:\n{text_to_process}\n\nREAL EXTRACTION OUTPUT:\n"
+
+    response = await openai_complete(
+        final_prompt,
+        system_prompt=None, # Already prepended
         history_messages=history_messages,
         **kwargs
     )
+    
+    # Fix BioMistral single-line issue
+    response = response.replace("entity<|#|>", "\nentity<|#|>")
+    response = response.replace("relation<|#|>", "\nrelation<|#|>")
+    response = response.strip()
+
+    # Diagnostic logging
+    with open("debug_llm_output.txt", "a") as f:
+        f.write("=== PROMPT ===\n")
+        f.write(prompt + "\n")
+        f.write("=== RESPONSE ===\n")
+        f.write(response + "\n")
+        f.write("=================\n\n")
+        
+    return response
+
+from dotenv import load_dotenv
+load_dotenv(os.path.join(project_root, 'biomed-rag', '.env'))
+
+LLM_MODEL = os.environ["LLM_MODEL"]
+EMBEDDING_MODEL = os.environ["EMBEDDING_MODEL"]
 
 # %%
 # Using vLLM
@@ -83,7 +134,7 @@ async def bio_mistral_complete(prompt, system_prompt=None, history_messages=None
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=bio_mistral_complete,
-    llm_model_name="BioMistral/BioMistral-7B-AWQ-QGS128-W4-GEMM",
+    llm_model_name=LLM_MODEL,
     llm_model_max_async=4,
     llm_model_kwargs={
         "base_url": "http://127.0.0.1:8080/v1", 
@@ -100,7 +151,7 @@ rag = LightRAG(
             openai_embed.func,
             base_url="http://127.0.0.1:8081/v1",  # Updated port
             api_key="none",
-            model="nomic-ai/nomic-embed-text-v1.5"
+            model=EMBEDDING_MODEL
         )
     )
 )
