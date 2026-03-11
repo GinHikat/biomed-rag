@@ -18,7 +18,7 @@ load_dotenv(os.path.join(project_root, ".env"))
 # ============================================================
 # LLM GENERATION CONFIG  (tweak here)
 # ============================================================
-LLM_MAX_TOKENS  = 2048   # increase if relations are cut off mid-list
+LLM_MAX_TOKENS  = 3072  # prompt + output must stay under model's 8192-token context window
 LLM_TEMPERATURE = 0.1    # lower = more deterministic output
 LLM_TOP_P       = 0.95
 # ============================================================
@@ -70,12 +70,29 @@ async def llm_complete(prompt, system_prompt=None, history_messages=None, **kwar
     return response
 
 # ── RAG instance ──────────────────────────────────────────────────────────────
+
+# Biomedical entity types — overrides LightRAG's generic defaults
+# (default types cause biological entities to be misclassified as 'artifact')
+ENTITY_TYPES = [
+    "Anatomy",      # organs, tissues, body structures
+    "Disease",      # conditions, disorders, syndromes
+    "Gene",         # genes, DNA sequences
+    "Protein",      # proteins, enzymes, receptors
+    "Chemical",     # small molecules, metabolites, ions
+    "Drug",         # medications, pharmaceuticals
+    "Organism",     # bacteria, viruses, species
+    "Procedure",    # medical/surgical procedures, imaging techniques
+    "Method",       # laboratory methods, experimental techniques
+    "Concept",      # abstract medical/biological concepts
+]
+
 def build_rag() -> LightRAG:
     return LightRAG(
         working_dir=WORKING_DIR,
         llm_model_func=llm_complete,
         llm_model_name=LLM_MODEL,
         llm_model_max_async=4,
+        entity_types=ENTITY_TYPES,
         llm_model_kwargs={
             "base_url": LLM_BASE_URL,
             "api_key":  "none",

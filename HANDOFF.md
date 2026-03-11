@@ -1,5 +1,5 @@
 # BioMed RAG — Session Handoff Notes
-> Last updated: 2026-03-10  
+> Last updated: 2026-03-11  
 > Deadline: 2026-03-17 (presentation)
 
 ---
@@ -91,7 +91,7 @@ LLM_DEVICE=cpu EMBED_DEVICE=cpu ./start_lightrag_vllm.sh
 
 | Service | Port | URL |
 |---------|------|-----|
-| vLLM LLM (BioMistral-7B-AWQ) | 8080 | http://localhost:8080/v1 |
+| vLLM LLM (Qwen2.5-7B-Instruct-AWQ) | 8080 | http://localhost:8080/v1 |
 | vLLM Embed (nomic-embed-text-v1.5) | 8081 | http://localhost:8081/v1 |
 | LightRAG API | 9621 | http://localhost:9621/docs |
 
@@ -106,8 +106,10 @@ Logs are written to `biomed-rag/logs/`.
 | `VLLM_GPU_MEM_UTIL` | `0.70` | GPU fraction for LLM (RTX 3060 needs ≤ 0.70) |
 | `VLLM_EMBED_GPU_MEM_UTIL` | `0.15` | GPU fraction for embed model |
 | `VLLM_QUANTIZATION` | `awq_marlin` | AWQ-Marlin is faster than plain AWQ on RTX |
-| `LLM_MODEL` | `BioMistral/BioMistral-7B-AWQ-QGS128-W4-GEMM` | HuggingFace model ID |
+| `LLM_MODEL` | `Qwen/Qwen2.5-7B-Instruct-AWQ` | HuggingFace model ID (switched from BioMistral due to formatting issues) |
 | `EMBEDDING_MODEL` | `nomic-ai/nomic-embed-text-v1.5` | Embedding model |
+| `RAG_WORKING_DIR` | `repo_root/rag_storage` | LightRAG storage dir (absolute path) |
+| `VLLM_MAX_MODEL_LEN` | `8192` | Model context window — raise to 16384 for more output tokens |
 
 ---
 
@@ -161,15 +163,47 @@ async with RAGPipeline(mode="hybrid") as pipeline:
 
 ---
 
+## Notebook Pipeline (current working approach)
+
+All active scripts live in `notebooks/`:
+
+| File | Purpose |
+|------|---------|
+| `rag_config.py` | **Single source of truth** — LLM config, entity types, `build_rag()` |
+| `ingest.py` | Ingest a single `.txt` file (defaults to `Anatomy_Gray.txt`) |
+| `ingest_full.py` | Ingest all 18 medqa textbooks + pubmedqa.csv (638 MB total) |
+| `query.ipynb` | Interactive query notebook with mode comparison cells |
+
+```bash
+# Ingest everything (run from repo root)
+python notebooks/ingest_full.py
+
+# Textbooks only (skip the 554 MB pubmedqa)
+python notebooks/ingest_full.py --textbooks
+
+# Preview without ingesting
+python notebooks/ingest_full.py --dry-run
+```
+
+**Key config knobs** (top of `notebooks/rag_config.py`):
+- `LLM_MAX_TOKENS = 3072` — safe ceiling for 8192-token context; raise `VLLM_MAX_MODEL_LEN` first if you want more
+- `ENTITY_TYPES` — biomedical list (Anatomy, Disease, Gene, Protein, Chemical, Drug, Organism, Procedure, Method, Concept)
+- `DEBUG_LLM = True` — logs every prompt+response to `repo_root/debug_llm_output.txt`
+
+**Storage:** `repo_root/rag_storage/` (git-ignored). Delete and re-run `ingest_full.py` to rebuild.
+
+---
+
 ## What Still Needs to Be Done
 
-- [ ] **Run ingestion** — BC5CDR Training split into LightRAG (one-time, ~30 min on GPU)
+- [/] **Run full ingestion** — `python notebooks/ingest_full.py --textbooks` currently in progress (Anatomy_Gray done, 17 remaining + pubmedqa)
+- [ ] **Evaluate entity typing** — check `debug_llm_output.txt` after re-ingest with new `ENTITY_TYPES` to confirm correct classification
 - [ ] **Collect QA test pairs** — from BioASQ / PubMedQA for RAGAS evaluation (data team)
 - [ ] **Run CID F1 eval** — `evaluate_cid_f1(pipeline, split="Test")`
 - [ ] **Run RAGAS metrics** — once QA pairs are ready
 - [ ] **RAG vs raw-model benchmark** — `evaluate_mcqa(..., rag_enabled=False)` then `rag_enabled=True` on MedQA test set
 - [ ] **Ablation study** — compare `local` vs `global` vs `hybrid` retrieval modes
-- [ ] **Ingest ChemDisGene** — Phase 2 of the plan (larger scale)
+- [ ] **Ingest ChemDisGene** — Phase 2 (larger scale)
 
 ---
 
