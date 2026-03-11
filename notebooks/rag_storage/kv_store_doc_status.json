@@ -475,11 +475,11 @@
     "content_summary": "What is anatomy?\n\nAnatomy includes those structures that can be seen grossly (without the aid of magnification) and microscopically (with the aid of magnification). Typically, when used by itself, the term anatomy tends to mean gross or macroscopic a...",
     "content_length": 2281157,
     "created_at": "2026-03-11T15:33:57.509977+00:00",
-    "updated_at": "2026-03-11T15:45:55.740600+00:00",
+    "updated_at": "2026-03-11T16:24:42.299325+00:00",
     "file_path": "unknown_source",
     "track_id": "insert_20260311_153357_d02338b3",
     "metadata": {
-      "processing_start_time": 1773243955
+      "processing_start_time": 1773246282
     }
   },
   "dup-35ace8afe8b008320f52120a35971e03": {
@@ -523,6 +523,22 @@
     "file_path": "unknown_source",
     "track_id": "insert_20260311_154555_1d7bb594",
     "error_msg": "Content already exists. Original doc_id: doc-21250d6571086cc53d058350568a0609, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-21250d6571086cc53d058350568a0609",
+      "original_track_id": "insert_20260311_153357_d02338b3"
+    },
+    "chunks_list": []
+  },
+  "dup-f06bccb9b0131666bfb6b5da24ff3819": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-21250d6571086cc53d058350568a0609",
+    "content_length": 2281157,
+    "created_at": "2026-03-11T16:24:41.996449+00:00",
+    "updated_at": "2026-03-11T16:24:41.996455+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260311_162441_b975ce83",
+    "error_msg": "Content already exists. Original doc_id: doc-21250d6571086cc53d058350568a0609, Status: processing",
     "metadata": {
       "is_duplicate": true,
       "original_doc_id": "doc-21250d6571086cc53d058350568a0609",

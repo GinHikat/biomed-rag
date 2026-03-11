@@ -106,16 +106,23 @@ rag = LightRAG(
 )
 
 # %%
-await rag.initialize_storages()
+async def main():
+    await rag.initialize_storages()
 
-# %%
-data_dir = os.path.join(project_root, 'biomed-rag', 'data', 'external', 'medqa')
-sample_textbook = os.path.join(data_dir, 'textbooks', 'Anatomy_Gray.txt')
+    # %%
+    # data_dir = os.path.join(project_root, 'biomed-rag', 'data', 'external', 'medqa')
+    # Use path relative to the script for robustness
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(os.path.dirname(current_dir), 'data', 'external', 'medqa')
+    sample_textbook = os.path.join(data_dir, 'textbooks', 'Anatomy_Gray.txt')
 
-with open(sample_textbook, 'r') as f:
-    text = f.read()
+    with open(sample_textbook, 'r') as f:
+        text = f.read()
 
-# %%
-await rag.ainsert(text)
+    # %%
+    await rag.ainsert(text)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 
