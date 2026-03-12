@@ -8,21 +8,28 @@ Servers are started by start_lightrag_vllm.sh:
 
 import os
 
-# ── Server endpoints (override via env vars if needed) ───────────────────────
-LLM_BASE_URL   = os.getenv("LLM_BINDING_HOST",       "http://localhost:8080/v1")
-EMBED_BASE_URL = os.getenv("EMBEDDING_BINDING_HOST",  "http://localhost:8081/v1")
-LLM_API_KEY    = os.getenv("LLM_BINDING_API_KEY",    "none")
-EMBED_API_KEY  = os.getenv("EMBEDDING_BINDING_API_KEY", "none")
+import sys
+from pathlib import Path
 
-LLM_MODEL   = os.getenv("LLM_MODEL",        "BioMistral/BioMistral-7B-AWQ-QGS128-W4-GEMM")
-EMBED_MODEL = os.getenv("EMBEDDING_MODEL",  "nomic-ai/nomic-embed-text-v1.5")
-EMBED_DIM   = int(os.getenv("EMBEDDING_DIM", "768"))
-EMBED_MAX_TOKENS = int(os.getenv("EMBEDDING_MAX_TOKENS", "512"))
+# Add project root and scripts directory to sys.path to import config.py
+project_root = Path(__file__).resolve().parent.parent.parent
+scripts_dir = project_root / "scripts"
+if str(scripts_dir) not in sys.path:
+    sys.path.append(str(scripts_dir))
+import config
 
-WORKING_DIR = os.getenv(
-    "LIGHTRAG_WORKING_DIR",
-    os.path.join(os.path.dirname(__file__), "..", "..", "data", "vectorstore", "lightrag_storage"),
-)
+# ── Server endpoints ───────────────────────
+LLM_BASE_URL   = getattr(config, "LLM_BASE_URL", "http://localhost:8080/v1")
+EMBED_BASE_URL = getattr(config, "EMBED_BASE_URL", "http://localhost:8081/v1")
+LLM_API_KEY    = "none"
+EMBED_API_KEY  = "none"
+
+LLM_MODEL   = config.LLM_MODEL
+EMBED_MODEL = config.EMBEDDING_MODEL
+EMBED_DIM   = 768
+EMBED_MAX_TOKENS = 512
+
+WORKING_DIR = str(config.RAG_WORKING_DIR)
 
 # ── Async functions passed to LightRAG ───────────────────────────────────────
 from lightrag.llm.openai import openai_complete_if_cache, openai_embed

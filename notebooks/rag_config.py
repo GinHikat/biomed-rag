@@ -8,28 +8,30 @@ from functools import partial
 # ── resolve project root (always repo root, regardless of cwd) ────────────────
 SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))   # notebooks/
 project_root = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))  # repo root
+# Add project root and scripts to sys.path
 if project_root not in sys.path:
     sys.path.append(project_root)
+scripts_path = os.path.join(project_root, "scripts")
+if scripts_path not in sys.path:
+    sys.path.append(scripts_path)
 
-# ── load .env ─────────────────────────────────────────────────────────────────
-from dotenv import load_dotenv
-load_dotenv(os.path.join(project_root, ".env"))
+import config
 
 # RAG CONFIGURATION (tweak here)
-LLM_MODEL           = os.environ["LLM_MODEL"]
-LLM_MAX_TOKENS      = 1024     # Match try.ipynb
+LLM_MODEL           = config.LLM_MODEL
+LLM_MAX_TOKENS      = 1024
 LLM_TEMPERATURE     = 0.1
 LLM_TOP_P           = 0.95
 
-# Repetition penalties disabled (match try.ipynb)
+# Repetition penalties disabled
 FREQUENCY_PENALTY   = 0.0
 PRESENCE_PENALTY    = 0.0
 
-CHUNK_TOKEN_SIZE    = 1200     # Match try.ipynb
+CHUNK_TOKEN_SIZE    = 1200
 USE_CUSTOM_ENTITIES = False
-USE_CUSTOM_PROMPTS  = False    # Switch back to LightRAG defaults (match try.ipynb)
+USE_CUSTOM_PROMPTS  = False
 
-DEBUG_OUTPUT_FILE = 'debug.log' #temp
+# Removed stale DEBUG_OUTPUT_FILE
 
 # ── Custom Prompts ────────────────────────────────────────────────────────────
 
@@ -64,13 +66,13 @@ DEBUG_LLM         = True   # set False to disable prompt/response logging
 DEBUG_LOG_FILE    = os.path.join(project_root, "debug_llm_output.txt")
 # ─────────────────────────────────────────────────────────────────────────────
 
-# ── from .env ─────────────────────────────────────────────────────────────────
-EMBEDDING_MODEL  = os.environ.get("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
-LLM_BASE_URL    = os.environ.get("LLM_BASE_URL",  "http://127.0.0.1:8080/v1")
-EMBED_BASE_URL   = os.environ.get("EMBED_BASE_URL", "http://127.0.0.1:8081/v1")
+# ── from config ───────────────────────────────────────────────────────────────
+EMBEDDING_MODEL  = config.EMBEDDING_MODEL
+LLM_BASE_URL     = config.LLM_BASE_URL
+EMBED_BASE_URL   = config.EMBED_BASE_URL
 
-# Use local storage inside notebooks/ (mirroring try.ipynb's behavior)
-WORKING_DIR     = os.environ.get("RAG_WORKING_DIR", os.path.join(SCRIPT_DIR, "rag_storage"))
+# Use local storage inside notebooks/
+WORKING_DIR     = os.path.join(SCRIPT_DIR, "rag_storage")
 
 # ── lightrag imports ──────────────────────────────────────────────────────────
 from lightrag.utils import setup_logger, EmbeddingFunc

@@ -23,7 +23,8 @@ if _HERE not in sys.path:
 
 from rag_config import (
     build_rag, project_root,
-    LLM_MODEL, WORKING_DIR, LLM_MAX_TOKENS, DEBUG_LLM, DEBUG_OUTPUT_FILE,
+    LLM_MODEL, EMBEDDING_MODEL, LLM_BASE_URL, EMBED_BASE_URL,
+    WORKING_DIR, LLM_MAX_TOKENS, DEBUG_LLM, DEBUG_LOG_FILE,
 )
 
 # ── Document sources ──────────────────────────────────────────────────────────
@@ -130,9 +131,12 @@ async def main():
 
     print(f"\n{'='*60}")
     print(f"  LLM model    : {LLM_MODEL}")
+    print(f"  Embed model  : {EMBEDDING_MODEL}")
+    print(f"  LLM base URL : {LLM_BASE_URL}")
+    print(f"  Embed base URL: {EMBED_BASE_URL}")
     print(f"  Working dir  : {WORKING_DIR}")
     print(f"  max_tokens   : {LLM_MAX_TOKENS}")
-    print(f"  Debug log    : {DEBUG_OUTPUT_FILE if DEBUG_LLM else 'disabled'}")
+    print(f"  Debug log    : {DEBUG_LOG_FILE if DEBUG_LLM else 'disabled'}")
     print(f"  Textbooks    : {'yes' if do_textbooks else 'no'}")
     print(f"  PubMedQA     : {'yes' if do_pubmedqa else 'no'}")
     print(f"{'='*60}\n")

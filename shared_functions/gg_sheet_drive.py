@@ -22,20 +22,27 @@ from typing import List, Dict, Optional
 from google.oauth2 import service_account
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from collections import defaultdict
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import mimetypes
 
 import sys, os
 
-project_root = os.path.abspath(os.path.join(os.getcwd(), ".."))
-if project_root not in sys.path:
-    sys.path.append(project_root)
+# project_root = os.path.abspath(os.path.join(os.getcwd(), ".."))
+# if project_root not in sys.path:
+#     sys.path.append(project_root)
 
-load_dotenv()
+# load_dotenv()
 
-google_api_creds = os.path.join(project_root, 'secrets', 'ggsheet_credentials.json')
-spreadsheet_id = os.getenv('GOOGLE_SHEET_ID') 
-drive_id = os.getenv('GOOGLE_DRIVE_ID')
+# Add scripts directory to sys.path to import config.py
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+scripts_path = os.path.join(project_root, "scripts")
+if scripts_path not in sys.path:
+    sys.path.append(scripts_path)
+import config
+
+google_api_creds = config.GOOGLE_API_CREDS
+spreadsheet_id = config.GOOGLE_SHEET_ID
+drive_id = config.GOOGLE_DRIVE_ID
 
 #Google Sheet
 def gs_to_df_pandas(tab_name, spreadsheet_id = spreadsheet_id, creds_path=google_api_creds):

@@ -14,7 +14,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))  # notebooks/
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
-from rag_config import build_rag, project_root, LLM_MODEL, EMBEDDING_MODEL, LLM_BASE_URL, WORKING_DIR, LLM_MAX_TOKENS, DEBUG_LLM, DEBUG_OUTPUT_FILE
+from rag_config import build_rag, project_root, LLM_MODEL, EMBEDDING_MODEL, LLM_BASE_URL, EMBED_BASE_URL, WORKING_DIR, LLM_MAX_TOKENS, DEBUG_LLM, DEBUG_LOG_FILE
 
 # ── Document to ingest ────────────────────────────────────────────────────────
 DEFAULT_TEXTBOOK = os.path.join(
@@ -27,9 +27,10 @@ async def main():
     print(f"  LLM model    : {LLM_MODEL}")
     print(f"  Embed model  : {EMBEDDING_MODEL}")
     print(f"  LLM base URL : {LLM_BASE_URL}")
+    print(f"  Embed base URL: {EMBED_BASE_URL}")
     print(f"  Working dir  : {WORKING_DIR}")
     print(f"  max_tokens   : {LLM_MAX_TOKENS}")
-    print(f"  Debug log    : {DEBUG_OUTPUT_FILE if DEBUG_LLM else 'disabled'}")
+    print(f"  Debug log    : {DEBUG_LOG_FILE if DEBUG_LLM else 'disabled'}")
     print(f"  Source file  : {source_file}")
     print()
 

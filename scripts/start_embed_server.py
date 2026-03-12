@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start a vLLM LLM server with configurable defaults and CLI overrides."""
+"""Start a vLLM embedding server with configurable defaults and CLI overrides."""
 
 from __future__ import annotations
 
@@ -10,21 +10,23 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Callable
-from dotenv import load_dotenv
+import config
 
-load_dotenv()
+# load_dotenv() # Removed
+
+# -----------------------------------------------------------------------------
+# Editable defaults (CLI args override these; env vars are used when args omitted)
+# -----------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_REPO_ROOT = SCRIPT_DIR
 DEFAULT_LOG_DIR = DEFAULT_REPO_ROOT / "logs"
-DEFAULT_LOG_FILE = "vllm_llm.log"
+DEFAULT_LOG_FILE = "vllm_embed.log"
 
-DEFAULT_VLLM_HOST = "0.0.0.0"
-DEFAULT_VLLM_LLM_PORT = 8080
-DEFAULT_LLM_MODEL = os.environ["LLM_MODEL"]
-DEFAULT_VLLM_QUANTIZATION = os.environ.get("VLLM_QUANTIZATION", "awq_marlin")
-DEFAULT_VLLM_MAX_MODEL_LEN = 8192
-DEFAULT_VLLM_GPU_MEM_UTIL = 0.70
-DEFAULT_LLM_DEVICE = "gpu"
+DEFAULT_VLLM_HOST = config.VLLM_HOST
+DEFAULT_VLLM_EMBED_PORT = config.VLLM_EMBED_PORT
+DEFAULT_EMBEDDING_MODEL = config.EMBEDDING_MODEL
+DEFAULT_VLLM_EMBED_GPU_MEM_UTIL = 0.15
+DEFAULT_EMBED_DEVICE = "gpu"  # gpu or cpu
 DEFAULT_CPU_DTYPE = "half"
 DEFAULT_TRUST_REMOTE_CODE = True
 
@@ -59,7 +61,7 @@ def get_config_value(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Start vLLM OpenAI-compatible LLM server.",
+        description="Start vLLM OpenAI-compatible embedding server.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -68,10 +70,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--log-file", default=None, help="Log file name")
 
     parser.add_argument("--host", default=None, help="Server host")
-    parser.add_argument("--port", type=int, default=None, help="LLM server port")
-    parser.add_argument("--model", default=None, help="LLM model name")
-    parser.add_argument("--quantization", default=None, help="Quantization mode for GPU")
-    parser.add_argument("--max-model-len", type=int, default=None, help="Maximum model length")
+    parser.add_argument("--port", type=int, default=None, help="Embedding server port")
+    parser.add_argument("--model", default=None, help="Embedding model name")
     parser.add_argument(
         "--gpu-memory-utilization",
         type=float,
@@ -82,7 +82,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--device",
         choices=["gpu", "cpu"],
         default=None,
-        help="Device for LLM server",
+        help="Device for embedding server",
     )
     parser.add_argument(
         "--cpu-dtype",
@@ -125,30 +125,18 @@ def main() -> int:
         get_config_value(args.repo_root, "REPO_ROOT", str(DEFAULT_REPO_ROOT), str)
     ).resolve()
     log_dir = Path(get_config_value(args.log_dir, "LOG_DIR", str(DEFAULT_LOG_DIR), str)).resolve()
-    log_file = get_config_value(args.log_file, "LLM_LOG_FILE", DEFAULT_LOG_FILE, str)
+    log_file = get_config_value(args.log_file, "EMBED_LOG_FILE", DEFAULT_LOG_FILE, str)
 
     host = get_config_value(args.host, "VLLM_HOST", DEFAULT_VLLM_HOST, str)
-    port = get_config_value(args.port, "VLLM_LLM_PORT", DEFAULT_VLLM_LLM_PORT, int)
-    model = get_config_value(args.model, "LLM_MODEL", DEFAULT_LLM_MODEL, str)
-    quantization = get_config_value(
-        args.quantization,
-        "VLLM_QUANTIZATION",
-        DEFAULT_VLLM_QUANTIZATION,
-        str,
-    )
-    max_model_len = get_config_value(
-        args.max_model_len,
-        "VLLM_MAX_MODEL_LEN",
-        DEFAULT_VLLM_MAX_MODEL_LEN,
-        int,
-    )
+    port = get_config_value(args.port, "VLLM_EMBED_PORT", DEFAULT_VLLM_EMBED_PORT, int)
+    model = get_config_value(args.model, "EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL, str)
     gpu_mem_util = get_config_value(
         args.gpu_memory_utilization,
-        "VLLM_GPU_MEM_UTIL",
-        DEFAULT_VLLM_GPU_MEM_UTIL,
+        "VLLM_EMBED_GPU_MEM_UTIL",
+        DEFAULT_VLLM_EMBED_GPU_MEM_UTIL,
         float,
     )
-    device = get_config_value(args.device, "LLM_DEVICE", DEFAULT_LLM_DEVICE, str).lower()
+    device = get_config_value(args.device, "EMBED_DEVICE", DEFAULT_EMBED_DEVICE, str).lower()
     cpu_dtype = get_config_value(args.cpu_dtype, "CPU_DTYPE", DEFAULT_CPU_DTYPE, str)
     trust_remote_code = get_config_value(
         args.trust_remote_code,
@@ -162,10 +150,10 @@ def main() -> int:
 
     if platform.system() == "Darwin" and device == "gpu":
         print(
-            "WARNING: macOS detected with LLM_DEVICE=gpu. "
-            "This launcher is configured for CUDA-style GPU execution and AWQ quantization. "
+            "WARNING: macOS detected with EMBED_DEVICE=gpu. "
+            "The vLLM Metal/MLX backend does not support the nomic_bert architecture. "
             "Falling back to CPU mode automatically. "
-            "Set LLM_DEVICE=cpu explicitly to suppress this warning."
+            "Set EMBED_DEVICE=cpu explicitly to suppress this warning."
         )
         device = "cpu"
 
@@ -178,32 +166,18 @@ def main() -> int:
         "vllm.entrypoints.openai.api_server",
         "--model",
         model,
+        "--runner",
+        "pooling",
         "--host",
         host,
         "--port",
         str(port),
-        "--max-model-len",
-        str(max_model_len),
     ]
 
     if device == "cpu":
         cmd.extend(["--dtype", cpu_dtype])
     else:
-        if quantization:
-            cmd.extend(["--quantization", quantization])
         cmd.extend(["--gpu-memory-utilization", str(gpu_mem_util)])
-
-    tokenizer = os.environ.get("LLM_TOKENIZER")
-    if tokenizer:
-        cmd.extend(["--tokenizer", tokenizer])
-        
-    hf_config_path = os.environ.get("HF_CONFIG_PATH")
-    if hf_config_path:
-        cmd.extend(["--hf-config-path", hf_config_path])
-
-    if quantization == "gguf":
-        cmd.extend(["--load-format", "gguf"])
-        cmd.append("--enforce-eager")  # Disable CUDAGraph capture for GGUF (avoids GGUFUninitializedParameter)
 
     if trust_remote_code:
         cmd.append("--trust-remote-code")
@@ -214,7 +188,7 @@ def main() -> int:
         if platform.system() == "Darwin":
             child_env["VLLM_PLUGINS"] = ""
 
-    print(f"Starting vLLM LLM server on port {port} (device: {device}) ...")
+    print(f"Starting vLLM embedding server on port {port} (device: {device}) ...")
     print(f"Log file: {log_path}")
 
     process = subprocess.Popen(
