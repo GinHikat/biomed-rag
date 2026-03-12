@@ -17,28 +17,20 @@ biomed-rag/
 ├── module/                   # Main project source code
 │   ├── RAG_pipeline/         # Core RAG components (chunking, embeddings, generation, ingestion, pipeline, retrieval, vectorstore)
 │   └── data_processing/      # Dataset parsing scripts (bc5cdr.py, ctd.py, pubtator.py)
-├── notebooks/                # Jupyter notebook demonstrations
-│   ├── processing_demo/
-│   └── rag_demo/
-├── experiments/              # Model experiments and ablation studies
-├── finetune/                 # Fine-tuning scripts
+├── notebooks/                # Jupyter notebook demonstrations and RAG scripts
+│   ├── ingest.py             # Single file ingestion
+│   ├── ingest_full.py        # Full corpus ingestion
+│   └── rag_config.py         # Shared RAG configuration
+├── scripts/                  # Infrastructure and server startup scripts
+│   ├── config.py             # Centralized infrastructure configuration
+│   ├── start_llm_server.py   # vLLM LLM server launcher
+│   ├── start_embed_server.py # vLLM embedding server launcher
+│   └── start_lightrag_server.py # LightRAG server launcher
 ├── shared_functions/         # Shared utilities (Google Drive/Sheets integration)
-├── tests/                    # Unit tests
-├── secrets/                  # Credentials directory
 ├── data/                     # Dataset storage
-│   ├── external/             # Hub datasets downloaded via script
-│   │   ├── bc5cdr/           # BioCreative V CDR Corpus
-│   │   ├── ChemDisGene/      # ChemDisGene dataset
-│   │   ├── bioasq/           # BioASQ benchmark dataset
-│   │   ├── medqa/            # MedQA multiple-choice dataset
-│   │   └── pubmedqa/         # PubMedQA text reasoning dataset
-│   └── vectorstore/          # Vector datastore
-├── plan.md   
-├── todo.txt               
-├── set_up_dataset.py         # Dataset preparation script
+├── secrets/                  # Credentials directory
 ├── requirements.txt          # Python dependencies
-└── .env.example              # Environment variables template
-
+└── .env                      # Secrets (Google API, etc. - do not push)
 ```
 
 ---
@@ -99,4 +91,42 @@ data/bc5cdr/data/training/full_bc5cdr_data.csv
 
 data/ChemDisGene/data/main/ctd_full_data
 ```
+
+## Running LightRAG
+
+Follow these steps to set up and run the biomedical RAG system:
+
+### 1. Start vLLM Servers
+First, launch the text generation and embedding servers using the scripts in the `scripts/` directory.
+
+**Terminal 1: LLM Server**
+```bash
+python scripts/start_llm_server.py
+```
+
+**Terminal 2: Embedding Server**
+```bash
+python scripts/start_embed_server.py
+```
+
+### 2. Ingest Documents
+Once both servers are running, you can ingest the biomedical corpus into the vector store.
+
+```bash
+# Ingest all available datasets (MedQA textbooks, PubMedQA, etc.)
+python notebooks/ingest_full.py
+
+# OR ingest a specific source (default Gray's Anatomy)
+python notebooks/ingest.py
+```
+
+### 3. Start LightRAG Server & WebUI
+Finally, start the LightRAG server which provides the API and Web interface.
+
+```bash
+python scripts/start_lightrag_server.py
+```
+
+Open your browser and navigate to:
+**[http://localhost:9621](http://localhost:9621)** (Default LightRAG port)
 
