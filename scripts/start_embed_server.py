@@ -18,7 +18,7 @@ import config
 # Editable defaults (CLI args override these; env vars are used when args omitted)
 # -----------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_REPO_ROOT = SCRIPT_DIR
+DEFAULT_REPO_ROOT = config.REPO_ROOT
 DEFAULT_LOG_DIR = DEFAULT_REPO_ROOT / "logs"
 DEFAULT_LOG_FILE = "vllm_embed.log"
 
