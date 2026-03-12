@@ -10,8 +10,9 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Callable
+from dotenv import load_dotenv
 
-
+load_dotenv()
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_REPO_ROOT = SCRIPT_DIR
 DEFAULT_LOG_DIR = DEFAULT_REPO_ROOT / "logs"
@@ -19,8 +20,8 @@ DEFAULT_LOG_FILE = "vllm_llm.log"
 
 DEFAULT_VLLM_HOST = "0.0.0.0"
 DEFAULT_VLLM_LLM_PORT = 8080
-DEFAULT_LLM_MODEL = "BioMistral/BioMistral-7B-AWQ-QGS128-W4-GEMM"
-DEFAULT_VLLM_QUANTIZATION = "awq_marlin"
+DEFAULT_LLM_MODEL = os.environ["LLM_MODEL"]
+DEFAULT_VLLM_QUANTIZATION = os.environ.get("VLLM_QUANTIZATION", "awq_marlin")
 DEFAULT_VLLM_MAX_MODEL_LEN = 8192
 DEFAULT_VLLM_GPU_MEM_UTIL = 0.70
 DEFAULT_LLM_DEVICE = "gpu"
@@ -188,14 +189,21 @@ def main() -> int:
     if device == "cpu":
         cmd.extend(["--dtype", cpu_dtype])
     else:
-        cmd.extend(
-            [
-                "--quantization",
-                quantization,
-                "--gpu-memory-utilization",
-                str(gpu_mem_util),
-            ]
-        )
+        if quantization:
+            cmd.extend(["--quantization", quantization])
+        cmd.extend(["--gpu-memory-utilization", str(gpu_mem_util)])
+
+    tokenizer = os.environ.get("LLM_TOKENIZER")
+    if tokenizer:
+        cmd.extend(["--tokenizer", tokenizer])
+        
+    hf_config_path = os.environ.get("HF_CONFIG_PATH")
+    if hf_config_path:
+        cmd.extend(["--hf-config-path", hf_config_path])
+
+    if quantization == "gguf":
+        cmd.extend(["--load-format", "gguf"])
+        cmd.append("--enforce-eager")  # Disable CUDAGraph capture for GGUF (avoids GGUFUninitializedParameter)
 
     if trust_remote_code:
         cmd.append("--trust-remote-code")

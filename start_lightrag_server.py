@@ -13,8 +13,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any, Callable
+from dotenv import load_dotenv
 
-
+load_dotenv()
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_REPO_ROOT = SCRIPT_DIR
 DEFAULT_LOG_DIR = DEFAULT_REPO_ROOT / "logs"
@@ -26,8 +27,8 @@ DEFAULT_LIGHTRAG_WORKING_DIR = DEFAULT_REPO_ROOT / "rag_storage"
 DEFAULT_LIGHTRAG_INPUT_DIR = DEFAULT_REPO_ROOT / "inputs"
 DEFAULT_VLLM_LLM_PORT = 8080
 DEFAULT_VLLM_EMBED_PORT = 8081
-DEFAULT_LLM_MODEL = "BioMistral/BioMistral-7B-AWQ-QGS128-W4-GEMM"
-DEFAULT_EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+DEFAULT_LLM_MODEL = os.environ["LLM_MODEL"]
+DEFAULT_EMBEDDING_MODEL = os.environ["EMBEDDING_MODEL"]
 DEFAULT_WAIT_RETRIES = 120
 DEFAULT_WAIT_SLEEP_SECONDS = 1.0
 

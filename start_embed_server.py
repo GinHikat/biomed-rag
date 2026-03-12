@@ -10,6 +10,9 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Callable
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # -----------------------------------------------------------------------------
 # Editable defaults (CLI args override these; env vars are used when args omitted)
@@ -21,7 +24,7 @@ DEFAULT_LOG_FILE = "vllm_embed.log"
 
 DEFAULT_VLLM_HOST = "0.0.0.0"
 DEFAULT_VLLM_EMBED_PORT = 8081
-DEFAULT_EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+DEFAULT_EMBEDDING_MODEL = os.environ["EMBEDDING_MODEL"]
 DEFAULT_VLLM_EMBED_GPU_MEM_UTIL = 0.15
 DEFAULT_EMBED_DEVICE = "gpu"  # gpu or cpu
 DEFAULT_CPU_DTYPE = "half"
